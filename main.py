@@ -74,7 +74,7 @@ class BlogPost(db.Model):
     author_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     author: Mapped["User"] = relationship(back_populates="posts")
 
-    comments: Mapped[List["Comments"]] = relationship(back_populates="parent_post")
+    comments: Mapped[List["Comments"]] = relationship(back_populates="parent_post", cascade="all, delete")
 
 
 class Comments(db.Model):
@@ -228,7 +228,10 @@ def edit_post(post_id):
 @admin_only
 def delete_post(post_id):
     post_to_delete = db.get_or_404(BlogPost, post_id)
+    print(f"delete {post_to_delete} - {post_to_delete.comments}")
     db.session.delete(post_to_delete)
+    # for each_comment in post_to_delete.comments:
+    #     db.session.delete(each_comment)
     db.session.commit()
     return redirect(url_for('get_all_posts'))
 
@@ -244,4 +247,4 @@ def contact():
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)
